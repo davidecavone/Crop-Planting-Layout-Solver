@@ -4,6 +4,21 @@ import math
 from ortools.sat.python import cp_model as cp
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
+from datetime import datetime
+import csv
+
+class FirstSolutionCallback(cp.CpSolverSolutionCallback):
+    def __init__(self):
+        cp.CpSolverSolutionCallback.__init__(self)
+        self._first_solution_time = None
+
+    def on_solution_callback(self):
+        if self._first_solution_time is None:
+            self._first_solution_time = self.wall_time
+            print(f"Prima soluzione trovata a {self._first_solution_time}")
+
+    def first_solution_time(self):
+        return self._first_solution_time
 
 # Funzioni di parsing
 # Ritorna i parametri dal file di configurazione
@@ -74,7 +89,7 @@ def overlap_length(start_a, end_a, start_b, end_b, name):
 # Funzioni di output
 # Stampa soluzione sul terminale
 def print_solution():
-    print(f"\nIstanza: {istance}")
+    print(f"\nIstanza: {instance}")
     print(f"Objective: {solver.objective_value}")
     for (h, s, i) in HSI:
         if solver.value(presence[h,s,i]):
@@ -108,15 +123,21 @@ def save_solution_image():
     handles = [patches.Patch(color=colors[h], label=f'Specie {h+1}') for h in range(H)]
     ax.legend(handles=handles)
     plt.tight_layout()
-    plt.savefig(f"plots/output_{istance.replace('.dat', '')}.png", dpi=150, bbox_inches='tight')
+    plt.savefig(f"plots/output_{instance.replace('.dat', '')}.png", dpi=150, bbox_inches='tight')
     plt.close()
+
+# Raccoglie il risultato
+timestamp = datetime.now().strftime('%d-%m-%Y_%H-%M-%S')
+csv_file = open(f'results/{timestamp}.csv', 'w', newline='')
+csv_writer = csv.writer(csv_file)
+csv_writer.writerow(['instance', 'H', 'K', 'N', 'variant', 'time_first_feasible'])
 
 num_workers, time_limit, allelopathy_threshold, constraint_mode = parse_config_file('config.ini')
 instances = get_instances_list("instances.txt")
 
-for istance in instances:
+for instance in instances:
 
-    K, M, H, a, o, c_min, c_max, d = parse_dat_file(istance)
+    K, M, H, a, o, c_min, c_max, d = parse_dat_file(instance)
     DIM_STRIP = math.floor(M / K)
 
     c_tilde = get_cluster_distance()
@@ -221,11 +242,22 @@ for istance in instances:
     solver.parameters.num_workers = num_workers
     # Imposta un timeout per istanza di 30 secondi
     solver.parameters.max_time_in_seconds = time_limit
-    status = solver.solve(model)
+    callback = FirstSolutionCallback()
+    status = solver.solve(model, callback)
+    time_ff = callback.first_solution_time()
+
+    # Scrive il CSV
+    variant = 'hard' if constraint_mode == 'hard' else 'soft'
+    csv_writer.writerow([instance, H, K, DIM_STRIP, variant, time_ff])
 
     # Se ha trovato una soluzione la stampa su terminale e salva l'immagine nella cartella plots
     if status in (cp.OPTIMAL, cp.FEASIBLE):
         print_solution()
         save_solution_image()
+        # Stampa il tempo impiegato a trovare la prima soluzione
+        print(f"Tempo totale: {solver.wall_time}s")
+        print(f"Status: {solver.status_name(status)}")
     else:
         print("No solution found:", solver.status_name(status))
+
+csv_file.close()
