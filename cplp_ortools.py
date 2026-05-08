@@ -1,35 +1,30 @@
+import configparser
 import re
-import os
 import math
 from ortools.sat.python import cp_model as cp
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
-import matplotlib.cm as cm
-import matplotlib
-import configparser
 
-#Parsa i parametri dal file di configurazione
-config = configparser.ConfigParser()
-config.read('config.ini')
-num_workers = int(config['settings']['num_workers'])
-time_limit = int(config['settings']['time_limit'])
-allelopathy_threshold = int(config['settings']['allelopathy_threshold'])
-constraint_mode = config['settings']['constraint_mode']
+# Funzioni di parsing
+# Ritorna i parametri dal file di configurazione
+def parse_config_file(config_file_name):
+    config = configparser.ConfigParser()
+    config.read(config_file_name)
+    num_workers = int(config['settings']['num_workers'])
+    time_limit = int(config['settings']['time_limit'])
+    allelopathy_threshold = int(config['settings']['allelopathy_threshold'])
+    constraint_mode = config['settings']['constraint_mode']
+    return num_workers, time_limit, allelopathy_threshold, constraint_mode
 
-base_dir = os.path.dirname(os.path.abspath(__file__))
-#Dichiara il modello
-model = cp.CpModel()
-
-#Funzioni ausiliarie
-#Legge il nome dell'istanza
-def getInstances(istancesFileName):
+# Ritorna l'elenco delle istanze
+def get_instances_list(istancesFileName):
     lines = []
     with open(istancesFileName) as f:
         for l in f:
             lines.append(l.strip())
         return lines
 
-#Importa dati del problema da un'istanza .dat
+# Ritorna i parametri delle istanze
 def parse_dat_file(filepath):
     with open("instances/" + filepath + ".dat", 'r') as file:
         content = file.read()
@@ -56,14 +51,15 @@ def parse_dat_file(filepath):
 
     return K, M, H, a, o, c_min, c_max, d
 
-#Calcola la distanza minima tra due cluster della stessa specie sulla stessa riga
+# Funzioni ausiliarie
+# Calcola la distanza minima tra due cluster della stessa specie sulla stessa riga
 def get_cluster_distance():
     c_tilde = []
     for h in range(0, H):
         c_tilde.append(min(c_min[k] for k in range(0, H) if k != h))
     return c_tilde
 
-#Calcola la lunghezza di overlap
+# Calcola la lunghezza di overlap
 def overlap_length(start_a, end_a, start_b, end_b, name):
     min_end = model.new_int_var(0, DIM_STRIP, f'min_end_{name}')
     max_start = model.new_int_var(0, DIM_STRIP, f'max_start_{name}')
@@ -75,8 +71,9 @@ def overlap_length(start_a, end_a, start_b, end_b, name):
     model.add_max_equality(overlap, [diff, 0])
     return overlap
 
-#Stampa soluzione sul terminale
-def printSolution():
+# Funzioni di output
+# Stampa soluzione sul terminale
+def print_solution():
     print(f"\nIstanza: {istance}")
     print(f"Objective: {solver.objective_value}")
     for (h, s, i) in HSI:
@@ -84,11 +81,11 @@ def printSolution():
             print(f"  z[{h},{s},{i}]: start={solver.value(start[h,s,i])}, "
                 f"end={solver.value(end[h,s,i])}, size={solver.value(size[h,s,i])}")
 
-#Stampa soluzione graficamente
-def saveSolutionImage():
+# Stampa soluzione graficamente
+def save_solution_image():
     fig, ax = plt.subplots(figsize=(max(12, DIM_STRIP * 0.15), 6))
     fig.canvas.manager.set_window_title('Crop Planting Layout Solver')
-    cmap = matplotlib.colormaps.get_cmap('tab10')
+    cmap = plt.colormaps.get_cmap('tab10')
     colors = [cmap(h / H) for h in range(H)]
     for (h, s, i) in HSI:
         if solver.value(presence[h,s,i]):
@@ -114,22 +111,25 @@ def saveSolutionImage():
     plt.savefig(f"plots/output_{istance.replace('.dat', '')}.png", dpi=150, bbox_inches='tight')
     plt.close()
 
-#Legge le istanze da un file txt
-instances = getInstances("instances.txt")
+num_workers, time_limit, allelopathy_threshold, constraint_mode = parse_config_file('config.ini')
+instances = get_instances_list("instances.txt")
+
 for istance in instances:
 
-    K, M, H, a, o, c_min, c_max, d = parse_dat_file(istance.strip())
+    K, M, H, a, o, c_min, c_max, d = parse_dat_file(istance)
     DIM_STRIP = math.floor(M / K)
 
-    #Distanza minima tra cluster della stessa specie su stessa riga
     c_tilde = get_cluster_distance()
 
-    #Numero massimo di cluster di specie h sulla stessa riga
+    # Numero massimo di cluster di specie h sulla stessa riga
     P = [math.floor((min(d[h]*o[h], DIM_STRIP) + c_tilde[h]) / (c_min[h] + c_tilde[h])) for h in range(H)]
-    #Lista di triplette che identificano univocamente l'i-esimo cluster di specie h presente sulla riga s
+    # Lista di triplette che identificano univocamente il cluster di specie h sulla riga s i-esimo
     HSI = [(h, s, i) for h in range(H) for s in range(K) for i in range(P[h])]
 
-    #Variabile decisionale
+    # Dichiara il modello
+    model = cp.CpModel()
+
+    # Variabile decisionale
     z = {}
     start = {}
     end = {}
@@ -146,8 +146,8 @@ for istance in instances:
             start[h,s,i], size[h,s,i], end[h,s,i], presence[h,s,i], f"z_h{h}_s{s}_i{i}"
         )
 
-    #Vincoli
-    #La domanda di specie h deve essere soddisfatta
+    # Vincoli
+    # La domanda di specie h deve essere soddisfatta
     for h in range(H):
         terms = []
         for s in range(K):
@@ -157,25 +157,25 @@ for istance in instances:
                 terms.append(contrib)
         model.add(sum(terms) == d[h] * o[h])
 
-    #Dimensioni consentite di ciascun cluster
+    # Dimensioni consentite di ciascun cluster
     for (h, s, i) in HSI:
         allowed = [[v] for v in range(c_min[h], c_max[h] + 1) if v % o[h] == 0]
         model.add_allowed_assignments([size[h,s,i]], allowed)
 
-    #Impedisce l'overlap di cluster sulla stessa strip
+    # Impedisce l'overlap di cluster sulla stessa strip
     for s in range(K):
         intervals_on_strip = [z[h,s,i] for (h, ss, i) in HSI if ss == s]
         model.add_no_overlap(intervals_on_strip)
 
-    #Verifica che l'hard-constraint mode sia attiva
+    # Verifica che l'hard-constraint mode sia attiva
     if constraint_mode == 'hard':
-        #Ricava l'insieme di specie incompatibili
+        # Ricava l'insieme di specie incompatibili
         S = set()
         for h in range(H):
             for k in range(H):
                 if a[h][k] <= allelopathy_threshold:
                     S.add((min(h,k), max(h,k)))
-        #Aggiunge il vincolo di non adiacenza tra specie incompatibili
+        # Aggiunge il vincolo di non adiacenza tra specie incompatibili
         for s in range(K - 1):
             for (h, k) in S:
                 intervals_h = [z[h, s, i] for i in range(P[h])]
@@ -186,18 +186,18 @@ for istance in instances:
                 intervals_h2 = [z[h, s+1, i] for i in range(P[h])]
                 model.add_no_overlap(intervals_k2 + intervals_h2)
 
-    #Symmetry breaking constraint:
-    #I cluster devono essere in ordine
+    # Symmetry breaking constraint:
+    # I cluster devono essere in ordine
     for h in range(H):
         for s in range(K):
             for i in range(1, P[h]):
-                # se il cluster i e' presente, anche i-1 deve esserlo
+                #  se il cluster i e' presente, anche i-1 deve esserlo
                 model.add(presence[h,s,i-1] == 1).only_enforce_if(presence[h,s,i])
-                # il cluster i inizia dopo la fine del cluster i-1 + c_tilde
+                #  il cluster i inizia dopo la fine del cluster i-1 + c_tilde
                 model.add(end[h,s,i-1] + c_tilde[h] <= start[h,s,i]).only_enforce_if(
                     [presence[h,s,i-1], presence[h,s,i]])
 
-    #Funzione obiettivo
+    # Funzione obiettivo
     obj_terms = []
     for h in range(H):
         for k in range(H):
@@ -215,17 +215,17 @@ for istance in instances:
                         obj_terms.append(a[h][k] * ol_p2)
     model.maximize(sum(obj_terms))
 
-    #Chiama il solver
+    # Chiama il solver
     solver = cp.CpSolver()
-    #Limita il numero di core
+    # Limita il numero di core
     solver.parameters.num_workers = num_workers
-    #Imposta un timeout per istanza di 30 secondi
+    # Imposta un timeout per istanza di 30 secondi
     solver.parameters.max_time_in_seconds = time_limit
     status = solver.solve(model)
 
-    #Se ha trovato una soluzione la stampa su terminale e salva l'immagine nella cartella plots
+    # Se ha trovato una soluzione la stampa su terminale e salva l'immagine nella cartella plots
     if status in (cp.OPTIMAL, cp.FEASIBLE):
-        printSolution()
-        saveSolutionImage()
+        print_solution()
+        save_solution_image()
     else:
         print("No solution found:", solver.status_name(status))
