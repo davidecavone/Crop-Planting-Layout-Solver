@@ -29,7 +29,8 @@ def parse_config_file(config_file_name):
     time_limit = int(config['settings']['time_limit'])
     allelopathy_threshold = int(config['settings']['allelopathy_threshold'])
     constraint_mode = config['settings']['constraint_mode']
-    return num_workers, time_limit, allelopathy_threshold, constraint_mode
+    export_results = config['settings'].getboolean('export_results')
+    return num_workers, time_limit, allelopathy_threshold, constraint_mode, export_results
 
 # Ritorna l'elenco delle istanze
 def get_instances_list(istancesFileName):
@@ -95,6 +96,7 @@ def print_solution():
         if solver.value(presence[h,s,i]):
             print(f"  z[{h},{s},{i}]: start={solver.value(start[h,s,i])}, "
                 f"end={solver.value(end[h,s,i])}, size={solver.value(size[h,s,i])}")
+    print("-------------------------------------------------------------------------")
 
 # Stampa soluzione graficamente
 def save_solution_image():
@@ -126,14 +128,15 @@ def save_solution_image():
     plt.savefig(f"plots/output_{instance.replace('.dat', '')}.png", dpi=150, bbox_inches='tight')
     plt.close()
 
-# Raccoglie il risultato
-timestamp = datetime.now().strftime('%d-%m-%Y_%H-%M-%S')
-csv_file = open(f'results/{timestamp}.csv', 'w', newline='')
-csv_writer = csv.writer(csv_file)
-csv_writer.writerow(['instance', 'H', 'K', 'N', 'variant', 'time_first_feasible'])
-
-num_workers, time_limit, allelopathy_threshold, constraint_mode = parse_config_file('config.ini')
+num_workers, time_limit, allelopathy_threshold, constraint_mode, export_results = parse_config_file('config.ini')
 instances = get_instances_list("instances.txt")
+
+# Raccoglie il risultato
+if export_results == True:
+    timestamp = datetime.now().strftime('%d-%m-%Y_%H-%M-%S')
+    csv_file = open(f'results/{timestamp}.csv', 'w', newline='')
+    csv_writer = csv.writer(csv_file)
+    csv_writer.writerow(['instance', 'H', 'K', 'N', 'time_first_feasible'])
 
 for instance in instances:
 
@@ -245,19 +248,20 @@ for instance in instances:
     callback = FirstSolutionCallback()
     status = solver.solve(model, callback)
     time_ff = callback.first_solution_time()
+    print(f"Status: {solver.status_name(status)}")
+    print(f"Tempo totale: {solver.wall_time}s")
 
-    # Scrive il CSV
-    variant = 'hard' if constraint_mode == 'hard' else 'soft'
-    csv_writer.writerow([instance, H, K, DIM_STRIP, variant, time_ff])
+    if export_results:
+        variant = 'hard' if constraint_mode == 'hard' else 'soft'
+        csv_writer.writerow([instance, H, K, DIM_STRIP, time_ff])
 
-    # Se ha trovato una soluzione la stampa su terminale e salva l'immagine nella cartella plots
     if status in (cp.OPTIMAL, cp.FEASIBLE):
         print_solution()
         save_solution_image()
-        # Stampa il tempo impiegato a trovare la prima soluzione
-        print(f"Tempo totale: {solver.wall_time}s")
-        print(f"Status: {solver.status_name(status)}")
     else:
         print("No solution found:", solver.status_name(status))
 
-csv_file.close()
+if export_results:
+    csv_file.close()
+    from analyze_results import analyze
+    analyze(f'results/{timestamp}.csv')
