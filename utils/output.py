@@ -47,7 +47,7 @@ def init_csv(base_dir):
         'esecuzione_pk', 'istanza_pk', 'istanza',
         'positive', 'negative', 'neutre',
         'specie', 'strip', 'fori', 'cluster',
-        'file_id', 'z', 'ctime', 'time', 'status',
+        'file_id', 'z', 'time', 'status',
         'sinergie', 'conflitti', 'thread', 'sn',
         'time_limit', 'solver', 'maximal'
     ])
@@ -71,7 +71,6 @@ def write_row(csv_writer, esecuzione_pk, istanza_pk, instance,
         cluster,
         file_id,
         z_val,
-        0,             # ctime (N/A per OR-Tools)
         wall_time,
         status_code,
         sinergie,
