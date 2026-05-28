@@ -128,7 +128,7 @@ def run_task(args):
 def main():
     base_dir = Path(__file__).parent
     allelopathy_threshold, export_results, export_plots = parse_config_file(base_dir / 'config.ini')
-    instances = parse_instances_list(base_dir / "instances.txt")
+    instances = parse_instances_list(base_dir / "instances.txt")[:5]
 
     # Costruisce la lista di task: una per ogni (istanza x configurazione)
     tasks = [
