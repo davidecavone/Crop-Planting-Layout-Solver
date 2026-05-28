@@ -73,7 +73,7 @@ for time_limit in CAMPAIGN_TIME_LIMITS:
                 conflitti = 0
 
             status_code = map_status(status)
-            wall_time   = round(solver.wall_time, 3)
+            wall_time   = solver.wall_time
 
             # Se ottimale, salva in cache per i time limit successivi
             if status_code == 1:
