@@ -109,7 +109,7 @@ def main():
     parser.add_argument(
     "--export-plots",
     action="store_true",
-    help="Esporta i grafici (default: False)"
+    help="Esporta le soluzioni sotto forma di grafico."
     )
     
     args = parser.parse_args()
