@@ -100,6 +100,17 @@ def main():
         choices=["hard", "soft"], 
         help="Modalità vincoli di vicinanza: 'hard' o 'soft' (default: hard)"
     )
+    parser.add_argument(
+        "--allelopathy_threshold",
+        type=int,
+        default="-100",
+        help="Soglia al di sotto della quale due specie sono considerate incompatibili"
+    )
+    parser.add_argument(
+    "--export-plots",
+    action="store_true",
+    help="Esporta i grafici (default: False)"
+    )
     
     args = parser.parse_args()
 
