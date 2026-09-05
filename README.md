@@ -45,8 +45,7 @@ The Crop Planting Layout Problem involves assigning agricultural crops to cluste
 
 ### 1. Clone the Repository
 ```bash
-git clone [https://github.com/davidecavone/Crop-Planting-Layout-Solver.git](https://github.com/davidecavone/Crop-Planting-Layout-Solver.git)
-cd Crop-Planting-Layout-Solver
+git clone https://github.com/davidecavone/Crop-Planting-Layout-Solver.git
 ```
 
 ### 2. Environment Setup
@@ -66,40 +65,15 @@ pip install -r requirements.txt
 
 ## 💻 Usage
 
-### Running the Solver on a Dataset
-
-Run the main runner script with a specified dataset instance:
-
 ```bash
-python -m src.solver --input data/instances/instance_01.json --timeout 60
+python solver.py
 ```
-
-### Command-Line Arguments
-
-| Flag | Description | Default |
-| :--- | :--- | :--- |
-| `--input`, `-i` | Path to the problem instance file (`.json` or `.csv`) | *Required* |
-| `--timeout`, `-t` | Maximum search wall-time in seconds | `60` |
-| `--threads` | Number of worker threads for parallel search | `8` |
-| `--plot` | Generate visual Gantt chart / spatial allocation plot | `False` |
 
 ---
 
 ## 📊 Visualizing Results
 
-The solver can output a spatial plot with the found solution.
-
----
-
-## 📈 Benchmarks & Performance
-
-| Instance | Plots / Clusters | Crops / Tasks | Solver Time | Status | Objective Value |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| `small_01` | 4 | 12 | 0.42s | Optimal | 1,240 |
-| `med_03` | 10 | 45 | 5.81s | Optimal | 4,890 |
-| `large_01`| 25 | 150 | 60.00s | Feasible | 14,200 |
-
----
+The solver can output a spatial plot with the found solution, by setting the export_plots parameter to true in config.ini.
 
 ## 📜 License
 
