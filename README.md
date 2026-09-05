@@ -26,7 +26,7 @@ The Crop Planting Layout Problem involves assigning agricultural crops to cluste
 ## 📂 Repository Structure
 
 ```text
-├── instances/            # Benchmark problem instance files (.dat files)
+├── instances/            # Benchmark problem instance files
 ├── plots/                # Output visual layouts
 ├── results/              # Output CSV logs
 ├── utils/                # Utility modules (instances data parsing, output functions)
