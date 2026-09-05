@@ -1,25 +1,22 @@
-import configparser
-import re
-from pathlib import Path
-
-# Parsing del file di configurazione
-def parse_config_file(config_file_name):
-    config = configparser.ConfigParser()
-    config.read(config_file_name)
-    allelopathy_threshold = int(config['settings']['allelopathy_threshold'])
-    export_results        = config['settings'].getboolean('export_results')
-    export_plots          = config['settings'].getboolean('export_plots')
-    return allelopathy_threshold, export_results, export_plots
-
-# Parsing della lista delle istanze
-def parse_instances_list(instances_file_name):
-    with open(instances_file_name) as f:
-        return [l.strip() for l in f if l.strip()]
-
-# Parsing dei parametri delle istanze
 def parse_dat_file(filepath):
-    base_dir = Path(__file__).parent.parent
-    with open(base_dir / "instances" / (filepath + ".dat"), 'r') as f:
+    path_obj = Path(filepath)
+
+    # 1. Gestione estensione: se l'utente non ha scritto .dat, lo aggiunge
+    if path_obj.suffix != '.dat':
+        path_obj = path_obj.with_suffix('.dat')
+
+    # 2. Gestione percorso:
+    # Se il file esiste direttamente al percorso fornito (assoluto o relativo), usalo.
+    # Altrimenti, cerca nella cartella standard 'instances/'.
+    if not path_obj.exists():
+        base_dir = Path(__file__).parent.parent
+        fallback_path = base_dir / "instances" / path_obj.name
+        if fallback_path.exists():
+            path_obj = fallback_path
+        else:
+            raise FileNotFoundError(f"File non trovato né in '{filepath}' né in '{fallback_path}'")
+
+    with open(path_obj, 'r') as f:
         content = f.read()
 
     def extract_int(name):
@@ -46,7 +43,10 @@ def parse_dat_file(filepath):
     negative = sum(1 for h in range(H) for k in range(h+1, H) if a[h][k] < 0)
     neutre   = sum(1 for h in range(H) for k in range(h+1, H) if a[h][k] == 0)
 
-    # file_id: ultima parte del nome istanza (es. I_2_6_33_1_1 -> 1)
-    file_id = int(filepath.split('_')[-1])
+    # file_id: estrae l'ultimo intero considerando solo il nome senza estensione (stem)
+    try:
+        file_id = int(path_obj.stem.split('_')[-1])
+    except (ValueError, IndexError):
+        file_id = 0
 
     return K, M, H, a, o, c_min, c_max, d, positive, negative, neutre, file_id
