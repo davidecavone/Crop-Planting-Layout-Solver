@@ -2,7 +2,9 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 from datetime import datetime
 import csv
+import pandas as pd
 
+# Print solution to the CLI
 def print_solution(instance, solver, presence, start, end, size, HSI):
     print(f"\nIstanza: {instance}")
     print(f"Objective: {solver.objective_value}")
@@ -12,6 +14,7 @@ def print_solution(instance, solver, presence, start, end, size, HSI):
                   f"end={solver.value(end[h,s,i])}, size={solver.value(size[h,s,i])}")
     print("-------------------------------------------------------------------------")
 
+# Plots the solution found and saves it as a PNG image
 def save_solution_image(instance, solver, presence, start, size, HSI, H, K, DIM_STRIP):
     fig, ax = plt.subplots(figsize=(max(12, DIM_STRIP * 0.15), 6))
     cmap   = plt.colormaps.get_cmap('tab10')
@@ -38,6 +41,7 @@ def save_solution_image(instance, solver, presence, start, size, HSI, H, K, DIM_
     plt.savefig(f"plots/output_{instance}.png", dpi=150, bbox_inches='tight')
     plt.close()
 
+# Creates a CSV file for the computational campaign
 def init_csv(base_dir):
     timestamp  = datetime.now().strftime('%d-%m-%Y_%H-%M-%S')
     csv_path   = base_dir / 'results' / f'{timestamp}.csv'
@@ -53,6 +57,7 @@ def init_csv(base_dir):
     ])
     return csv_file, csv_writer, csv_path
 
+# Writes row on the CSV containing the instance execution benchmarks
 def write_row(csv_writer, esecuzione_pk, istanza_pk, instance,
               positive, negative, neutre, H, K, DIM_STRIP, cluster, file_id,
               z_val, wall_time, status_code, sinergie, conflitti,
@@ -79,12 +84,12 @@ def write_row(csv_writer, esecuzione_pk, istanza_pk, instance,
         sn_label,
         time_limit,
         'OR-Tools',
-        0              # maximal: aggiornato nel post-processing
+        0
     ])
 
+# Finalize computational campaign CSV and saves it
 def finalize_csv(csv_file, csv_path):
     csv_file.close()
-    import pandas as pd
     df = pd.read_csv(csv_path)
     df['maximal'] = df.groupby('istanza_pk')['z'].transform('max')
     df.to_csv(csv_path, index=False)
