@@ -15,8 +15,8 @@ def overlap_length(model, start_a, end_a, start_b, end_b, name, DIM_STRIP):
     model.add_max_equality(overlap, [diff, 0])
     return overlap
 
+# Map CP-SAT solver status
 def map_status(cp_status):
-    """Mappa lo status CP-SAT al codice numerico della campagna (-1/0/1)."""
     if cp_status == cp.OPTIMAL:
         return 1
     elif cp_status == cp.FEASIBLE:
@@ -24,7 +24,7 @@ def map_status(cp_status):
     else:
         return -1
 
-# Callback prima soluzione
+# Callback for the first found solution
 class FirstSolutionCallback(cp.CpSolverSolutionCallback):
     def __init__(self):
         cp.CpSolverSolutionCallback.__init__(self)
@@ -37,24 +37,28 @@ class FirstSolutionCallback(cp.CpSolverSolutionCallback):
     def first_solution_time(self):
         return self._first_solution_time
 
-# Creazione e risoluzione del modello
+# Create and solve the model
 def build_and_solve(K, M, H, a, o, c_min, c_max, d,
                     constraint_mode, allelopathy_threshold,
                     num_workers, time_limit):
-
+    
+    # PARAMETERS
     DIM_STRIP = math.floor(M / K)
     c_tilde   = get_cluster_distance(H, c_min)
     P         = [math.floor((min(d[h]*o[h], DIM_STRIP) + c_tilde[h]) / (c_min[h] + c_tilde[h])) for h in range(H)]
     HSI       = [(h, s, i) for h in range(H) for s in range(K) for i in range(P[h])]
 
+    # Create model
     model = cp.CpModel()
 
+    # VARIABLES
     z        = {}
     start    = {}
     end      = {}
     size     = {}
     presence = {}
 
+    # Cluster variables
     for (h, s, i) in HSI:
         start[h,s,i]    = model.new_int_var(0, DIM_STRIP - 1, f"start_h{h}_s{s}_i{i}")
         size[h,s,i]     = model.new_int_var(c_min[h], c_max[h], f"size_h{h}_s{s}_i{i}")
@@ -63,8 +67,10 @@ def build_and_solve(K, M, H, a, o, c_min, c_max, d,
         z[h,s,i]        = model.new_optional_interval_var(
             start[h,s,i], size[h,s,i], end[h,s,i], presence[h,s,i], f"z_h{h}_s{s}_i{i}"
         )
-
-    # Domanda soddisfatta
+    
+    # CONSTRAINTS
+                        
+    # Meet the demand of units of species
     for h in range(H):
         terms = []
         for s in range(K):
@@ -74,17 +80,17 @@ def build_and_solve(K, M, H, a, o, c_min, c_max, d,
                 terms.append(contrib)
         model.add(sum(terms) == d[h] * o[h])
 
-    # Dimensioni consentite
+    # Allowed cluster sizes
     for (h, s, i) in HSI:
         allowed = [[v] for v in range(c_min[h], c_max[h] + 1) if v % o[h] == 0]
         model.add_allowed_assignments([size[h,s,i]], allowed)
 
-    # No overlap sulla stessa strip
+    # Forbids cluster overlaps on the same strip
     for s in range(K):
         intervals_on_strip = [z[h,s,i] for (h, ss, i) in HSI if ss == s]
         model.add_no_overlap(intervals_on_strip)
 
-    # Hard constraints: non adiacenza specie incompatibili
+    # In case of hard constraint mode, forbids adjacency for cluster on the same strip
     if constraint_mode == 'hard':
         S = set()
         for h in range(H):
@@ -96,7 +102,7 @@ def build_and_solve(K, M, H, a, o, c_min, c_max, d,
                 model.add_no_overlap([z[h, s, i] for i in range(P[h])] + [z[k, s+1, j] for j in range(P[k])])
                 model.add_no_overlap([z[k, s, j] for j in range(P[k])] + [z[h, s+1, i] for i in range(P[h])])
 
-    # Symmetry breaking
+    # Uses symmetry breaking to avoid exploring redundant solutions
     for h in range(H):
         for s in range(K):
             for i in range(1, P[h]):
@@ -104,7 +110,7 @@ def build_and_solve(K, M, H, a, o, c_min, c_max, d,
                 model.add(end[h,s,i-1] + c_tilde[h] <= start[h,s,i]).only_enforce_if(
                     [presence[h,s,i-1], presence[h,s,i]])
 
-    # Funzione obiettivo
+    # OBJECTIVE FUNCTION
     obj_terms = []
     for h in range(H):
         for k in range(H):
@@ -123,6 +129,7 @@ def build_and_solve(K, M, H, a, o, c_min, c_max, d,
                         obj_terms.append(a[h][k] * ol_p2)
     model.maximize(sum(obj_terms))
 
+    # Creates the CP-SAT solver and calls it to solve the model
     solver   = cp.CpSolver()
     solver.parameters.num_workers          = num_workers
     solver.parameters.max_time_in_seconds  = time_limit
