@@ -71,89 +71,21 @@ python main.py <instance> [-h] [--mode {hard,soft}] [--allelopathy-threshold INT
 
 If you use this work or reference the underlying model and tools, please cite the corresponding sources:
 
-### Primary Paper
+> Tommaso Adamo, L. Colizzi, G. Dimauro, Emanuela Guerriero, and D. Pareo, **"Crop planting layout optimization in sustainable agriculture: A constraint programming approach,"** *Computers and Electronics in Agriculture*, vol. 224, p. 109162, 2024. [https://doi.org/10.1016/j.compag.2024.109162](https://doi.org/10.1016/j.compag.2024.109162)
 
-> T. Adamo, L. Colizzi, G. Dimauro, E. Guerriero, and D. Pareo, **"Crop planting layout optimization in sustainable agriculture: A constraint programming approach,"** *Computers and Electronics in Agriculture*, vol. 224, p. 109162, 2024. [https://doi.org/10.1016/j.compag.2024.109162](https://doi.org/10.1016/j.compag.2024.109162)
+> Philippe Laborie, Jérôme Rogerie, Paul Shaw, and Petr Vilím, **"IBM ILOG CP Optimizer for scheduling,"** *Constraints*, vol. 23, no. 2, pp. 210–250, 2018. [https://doi.org/10.1007/s10601-018-9281-x](https://doi.org/10.1007/s10601-018-9281-x)
 
-```bibtex
-@article{adamo2024cplp,
-  author  = {Adamo, Tommaso and Colizzi, Lucio and Dimauro, Giovanni and Guerriero, Emanuela and Pareo, Deborah},
-  title   = {Crop planting layout optimization in sustainable agriculture: A constraint programming approach},
-  journal = {Computers and Electronics in Agriculture},
-  volume  = {224},
-  pages   = {109162},
-  year    = {2024},
-  doi     = {10.1016/j.compag.2024.109162}
-}
+> Philippe Laborie, Jérôme Rogerie, Paul Shaw, and Petr Vilím, **"Interval-Based Language for Modeling Scheduling Problems: An Extension to Constraint Programming,"** in *Algebraic Modeling Systems: Modeling and Solving Real World Optimization Problems*, Applied Optimization, vol. 104, J. Kallrath, Ed., Springer, pp. 111–143, 2012. [https://doi.org/10.1007/978-3-642-23592-4_6](https://doi.org/10.1007/978-3-642-23592-4_6)
 
-@article{laborie2018cpo,
-  author  = {Laborie, Philippe and Rogerie, J{\'e}r{\^o}me and Shaw, Paul and Vil{\'\i}m, Petr},
-  title   = {{IBM ILOG CP} Optimizer for scheduling},
-  journal = {Constraints},
-  volume  = {23},
-  number  = {2},
-  pages   = {210--250},
-  year    = {2018},
-  doi     = {10.1007/s10601-018-9281-x}
-}
+> Filippo Focacci, Andrea Lodi, and Michela Milano, **"Mathematical Programming Techniques in Constraint Programming: A Short Overview,"** *Journal of Heuristics*, vol. 8, no. 1, pp. 7–17, 2002.
 
-@incollection{laborie2012interval,
-  author    = {Laborie, Philippe and Rogerie, J{\'e}r{\^o}me and Shaw, Paul and Vil{\'\i}m, Petr},
-  title     = {Interval-Based Language for Modeling Scheduling Problems: An Extension to Constraint Programming},
-  booktitle = {Algebraic Modeling Systems: Modeling and Solving Real World Optimization Problems},
-  editor    = {Kallrath, Josef},
-  series    = {Applied Optimization},
-  volume    = {104},
-  pages     = {111--143},
-  publisher = {Springer},
-  year      = {2012},
-  doi       = {10.1007/978-3-642-23592-4_6}
-}
+> K. A. Bybee-Finley and M. R. Ryan, **"Advancing intercropping research and practices in industrialized agricultural landscapes,"** *Agriculture*, vol. 8, no. 6, p. 80, 2018.
 
-@article{focacci2002mp,
-  author  = {Focacci, Filippo and Lodi, Andrea and Milano, Michela},
-  title   = {Mathematical Programming Techniques in Constraint Programming: A Short Overview},
-  journal = {Journal of Heuristics},
-  volume  = {8},
-  number  = {1},
-  pages   = {7--17},
-  year    = {2002}
-}
+> Laurent Perron and Frédéric Didier, **"Google OR-Tools CP-SAT Solver,"** 2024. [https://developers.google.com/optimization/cp/cp_solver](https://developers.google.com/optimization/cp/cp_solver)
 
-@article{bybeefinley2018intercropping,
-  author  = {Bybee-Finley, K. A. and Ryan, M. R.},
-  title   = {Advancing intercropping research and practices in industrialized agricultural landscapes},
-  journal = {Agriculture},
-  volume  = {8},
-  number  = {6},
-  pages   = {80},
-  year    = {2018}
-}
+> IBM Corporation, **"IBM ILOG CP Optimizer User's Manual,"** Version 22.1.1, 2023.
 
-@misc{ortools_cpsat,
-  author       = {Perron, Laurent and Didier, Fr{\'e}d{\'e}ric},
-  title        = {{Google OR-Tools CP-SAT} Solver},
-  howpublished = {\url{https://developers.google.com/optimization/cp/cp_solver}},
-  year         = {2024}
-}
-
-@manual{ibm_cpo_manual,
-  title        = {{IBM ILOG CP Optimizer} User's Manual},
-  organization = {IBM Corporation},
-  year         = {2023},
-  note         = {Version 22.1.1}
-}
-
-@inbook{russell2020csp,
-  author    = {Russell, Stuart and Norvig, Peter},
-  title     = {Artificial Intelligence: A Modern Approach},
-  edition   = {4},
-  chapter   = {5},
-  note      = {Constraint Satisfaction Problems},
-  year      = {2020},
-  publisher = {Pearson}
-}
-```
+> Stuart Russell and Peter Norvig, **"Constraint Satisfaction Problems,"** in *Artificial Intelligence: A Modern Approach*, 4th ed., ch. 5, Pearson, 2020.
 
 ---
 ## License
