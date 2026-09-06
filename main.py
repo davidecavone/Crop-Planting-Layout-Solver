@@ -14,14 +14,14 @@ def solve_single_instance(instance_path, time_limit, constraint_mode, num_worker
     print(f"\nSolving instance : {instance_path}")
     print(f"Solver parameters  : Time Limit={time_limit}s | Mode={constraint_mode} | Workers={num_workers} | Allelopathy Threshold={allelopathy_threshold}")
     
-    # Calls the parse_dat_file function from the parsing module
+    # Parse the instance data using the parsing module
     try:
         K, M, H, a, o, c_min, c_max, d, positive, negative, neutre, file_id = parse_dat_file(instance_path)
     except Exception as e:
         print(f"\n[Parsing Error] {instance_path} cannot be read.")
         return
 
-    # Calls the CP-SAT solver and the build_and_solve function from the model module
+    # Build and solve the problem using model module
     print("\nStarting CP-SAT Solver...")
     try:
         solver, status, HSI, presence, start, end, size, DIM_STRIP, P = build_and_solve(
@@ -44,10 +44,10 @@ def solve_single_instance(instance_path, time_limit, constraint_mode, num_worker
         z_val      = sinergie = conflitti = 0
         status_str = solver.status_name(status)
 
-    # Saves the time needed to find the solution
+    # Saves the time needed to find the first solution
     wall_time = solver.wall_time
 
-    # Prints solution
+    # Prints solve time and aggregated objective score
     print("\n" + "="*45)
     print(" RESULTS ".center(45))
     print("="*45)
@@ -108,7 +108,7 @@ def main():
         help="Number of parallel threads used by the CP-SAT solver (default: 4)"
     )
     
-    # Output e visualizzazione
+    # Export plots
     parser.add_argument(
         "--export-plots",
         action="store_true",
