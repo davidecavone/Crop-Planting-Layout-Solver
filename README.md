@@ -4,7 +4,7 @@ A Constraint Programming solver in Python designed to address the **Crop Plantin
 
 ---
 
-## 📌 Problem Overview
+## Problem Overview
 
 The Crop Planting Layout Problem involves assigning agricultural crops to clusters of species across discrete planning horizons while respecting spatial constraints:
 
@@ -14,7 +14,7 @@ The Crop Planting Layout Problem involves assigning agricultural crops to cluste
 
 ---
 
-## 🛠 Tech Stack & Tools
+## Tech Stack & Tools
 
 - **Language:** Python 3.10+
 - **Solver Engine:** [Google OR-Tools (CP-SAT)](https://developers.google.com/optimization)
@@ -23,7 +23,7 @@ The Crop Planting Layout Problem involves assigning agricultural crops to cluste
 
 ---
 
-## 📂 Repository Structure
+## Repository Structure
 
 ```text
 ├── instances/            # Benchmark problem instance files
@@ -41,7 +41,7 @@ The Crop Planting Layout Problem involves assigning agricultural crops to cluste
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 ### 1. Clone the Repository
 ```bash
@@ -63,7 +63,7 @@ pip install -r requirements.txt
 
 ---
 
-## 💻 Usage
+## Usage
 
 ```bash
 python solver.py
@@ -71,7 +71,7 @@ python solver.py
 
 ---
 
-## 📊 Visualizing Results
+## Visualizing Results
 
 The solver can output a spatial plot with the found solution, by setting the export_plots parameter to true in config.ini.
 
