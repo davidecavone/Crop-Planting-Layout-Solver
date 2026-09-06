@@ -1,5 +1,4 @@
 import argparse
-from pathlib import Path
 import traceback
 from ortools.sat.python import cp_model as cp
 
@@ -7,13 +6,14 @@ from utils.parsing import *
 from utils.model import *
 from utils.output import *
 
+
 def solve_single_instance(instance_path, time_limit, constraint_mode, num_workers, allelopathy_threshold, export_plots):
     """
     Risolve una singola istanza del problema e stampa i risultati a schermo,
     adatta per demo lato client o esecuzione stand-alone.
     """
     print(f"\nRisoluzione istanza : {instance_path}")
-    print(f"Parametri Solver  : TL={time_limit}s | Mode={constraint_mode} | Workers={num_workers}")
+    print(f"Parametri Solver  : TL={time_limit}s | Mode={constraint_mode} | Workers={num_workers} | Threshold={allelopathy_threshold}")
     
     # --- 1. Parsing dell'istanza ---
     try:
@@ -73,7 +73,7 @@ def main():
         description="Tool per l'ottimizzazione del layout colturale su singola istanza."
     )
     
-        # Argomento obbligatorio
+    # Argomento obbligatorio
     parser.add_argument(
         "instance",
         type=str,
@@ -118,24 +118,13 @@ def main():
     
     args = parser.parse_args()
 
-    # Lettura delle impostazioni globali (soglia agronomica e abilitazione plot)
-    base_dir = Path(__file__).parent
-    config_path = base_dir / 'config.ini'
-    
-    try:
-        allelopathy_threshold, _, export_plots = parse_config_file(config_path)
-    except Exception as e:
-        print(f"Attenzione: Impossibile leggere {config_path.name} ({e}). Applicati valori di default.")
-        allelopathy_threshold = 0
-        export_plots = True
-
     solve_single_instance(
         instance_path=args.instance,
         time_limit=args.time_limit,
         constraint_mode=args.mode,
         num_workers=args.workers,
-        allelopathy_threshold=allelopathy_threshold,
-        export_plots=export_plots
+        allelopathy_threshold=args.allelopathy_threshold,
+        export_plots=args.export_plots
     )
 
 
