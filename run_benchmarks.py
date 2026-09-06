@@ -6,7 +6,7 @@ from multiprocessing import Pool
 import traceback
 
 # ---------------------------------------------------------------------------
-# Configurazione campagna
+# Computational campaign configuration
 # ---------------------------------------------------------------------------
 
 CAMPAIGN_TIME_LIMITS = [60, 120, 240, 480]
@@ -18,22 +18,11 @@ CONFIGURATIONS = [
     ('soft', 2),
 ]
 
-# Quanti task girare in parallelo.
-# Sul Ryzen 9 5950X (32 thread): ogni task usa max 2 thread di CP-SAT,
-# quindi con 8 worker usi ~12-16 thread. Puoi alzare a 12 se vuoi.
 POOL_SIZE = 8
 
-# ---------------------------------------------------------------------------
-# Worker: gestisce una singola (istanza, constraint_mode, num_workers)
-# e percorre tutta la sequenza di TL al suo interno
-# ---------------------------------------------------------------------------
-
+# Solve the instance for every combination of constraint mode, number of workers, and time limit
 def run_task(args):
-    """
-    Esegue la sequenza completa di time limit per una combinazione
-    (istanza, constraint_mode, num_workers).
-    Ritorna una lista di dict (uno per TL), pronti da scrivere sul CSV.
-    """
+
     istanza_pk, instance, constraint_mode, num_workers, allelopathy_threshold, export_plots = args
 
     results = []
