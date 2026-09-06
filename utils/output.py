@@ -4,16 +4,6 @@ from datetime import datetime
 import csv
 import pandas as pd
 
-# Print solution to the CLI
-def print_solution(instance, solver, presence, start, end, size, HSI):
-    print(f"\nIstanza: {instance}")
-    print(f"Objective: {solver.objective_value}")
-    for (h, s, i) in HSI:
-        if solver.value(presence[h, s, i]):
-            print(f"  z[{h},{s},{i}]: start={solver.value(start[h,s,i])}, "
-                  f"end={solver.value(end[h,s,i])}, size={solver.value(size[h,s,i])}")
-    print("-------------------------------------------------------------------------")
-
 # Plots the solution found and saves it as a PNG image
 def save_solution_image(instance, solver, presence, start, size, HSI, H, K, DIM_STRIP):
     fig, ax = plt.subplots(figsize=(max(12, DIM_STRIP * 0.15), 6))
