@@ -73,43 +73,47 @@ def main():
         description="Tool per l'ottimizzazione del layout colturale su singola istanza."
     )
     
-    # Argomento obbligatorio
+        # Argomento obbligatorio
     parser.add_argument(
-        "instance", 
-        type=str, 
-        help="Percorso del file .dat dell'istanza (es. instances/istanza_01.dat)"
+        "instance",
+        type=str,
+        help="Percorso del file di istanza"
     )
     
-    # Argomenti opzionali di configurazione del solver
+    # Configurazione del modello e dei vincoli
     parser.add_argument(
-        "--time-limit", 
-        type=int, 
-        default=60, 
-        help="Tempo limite di risoluzione in secondi (default: 60)"
-    )
-    parser.add_argument(
-        "--workers", 
-        type=int, 
-        default=4, 
-        help="Numero di thread paralleli per CP-SAT (default: 4)"
-    )
-    parser.add_argument(
-        "--mode", 
-        type=str, 
-        default="hard", 
-        choices=["hard", "soft"], 
+        "--mode",
+        type=str,
+        default="hard",
+        choices=["hard", "soft"],
         help="Modalità vincoli di vicinanza: 'hard' o 'soft' (default: hard)"
     )
     parser.add_argument(
-        "--allelopathy_threshold",
+        "--allelopathy-threshold",
         type=int,
-        default="-100",
-        help="Soglia al di sotto della quale due specie sono considerate incompatibili"
+        default=-100,
+        help="Soglia al di sotto della quale due specie sono incompatibili (default: -100)"
+    )
+    
+    # Risorse e limiti del solver CP-SAT
+    parser.add_argument(
+        "--time-limit",
+        type=int,
+        default=60,
+        help="Tempo limite di risoluzione in secondi (default: 60)"
     )
     parser.add_argument(
-    "--export-plots",
-    action="store_true",
-    help="Esporta le soluzioni sotto forma di grafico."
+        "--workers",
+        type=int,
+        default=4,
+        help="Numero di thread paralleli per CP-SAT (default: 4)"
+    )
+    
+    # Output e visualizzazione
+    parser.add_argument(
+        "--export-plots",
+        action="store_true",
+        help="Esporta le soluzioni sotto forma di grafico (default: False)"
     )
     
     args = parser.parse_args()
