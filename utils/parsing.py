@@ -1,27 +1,15 @@
-import configparser
 import re
 from pathlib import Path
 
 # ---------------------------------------------------------------------------
-# Parsing del file di configurazione
-# ---------------------------------------------------------------------------
-def parse_config_file(config_file_name):
-    config = configparser.ConfigParser()
-    config.read(config_file_name)
-    allelopathy_threshold = int(config['settings']['allelopathy_threshold'])
-    export_results        = config['settings'].getboolean('export_results')
-    export_plots          = config['settings'].getboolean('export_plots')
-    return allelopathy_threshold, export_results, export_plots
-
-# ---------------------------------------------------------------------------
-# Parsing della lista delle istanze (usato per benchmark / batch)
+# Instances batch parser (used for benchmarks)
 # ---------------------------------------------------------------------------
 def parse_instances_list(instances_file_name):
     with open(instances_file_name) as f:
         return [l.strip() for l in f if l.strip()]
 
 # ---------------------------------------------------------------------------
-# Parsing dei parametri dell'istanza .dat
+# Instance parser (.dat)
 # ---------------------------------------------------------------------------
 def parse_dat_file(filepath):
     path_obj = Path(filepath)
