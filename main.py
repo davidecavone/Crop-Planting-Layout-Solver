@@ -10,6 +10,7 @@ from utils.output import *
 
 def solve_single_instance(instance_path, time_limit, constraint_mode, num_workers, allelopathy_threshold, export_plots):
 
+    # Debug print
     print(f"\nSolving instance : {instance_path}")
     print(f"Solver parameters  : Time Limit={time_limit}s | Mode={constraint_mode} | Workers={num_workers} | Allelopathy Threshold={allelopathy_threshold}")
     
@@ -20,7 +21,7 @@ def solve_single_instance(instance_path, time_limit, constraint_mode, num_worker
         print(f"\n[Parsing Error] {instance_path} cannot be read.")
         return
 
-    # Calls the CP-SAT solver and the build_and_solve function
+    # Calls the CP-SAT solver and the build_and_solve function from the model module
     print("\nStarting CP-SAT Solver...")
     try:
         solver, status, HSI, presence, start, end, size, DIM_STRIP, P = build_and_solve(
@@ -33,7 +34,7 @@ def solve_single_instance(instance_path, time_limit, constraint_mode, num_worker
         traceback.print_exc()
         sys.exit(1)
 
-    # In case of optimal or feasible solution, save the found values
+    # In case of optimal or feasible solution, saves the found values
     if status in (cp.OPTIMAL, cp.FEASIBLE):
         z_val      = int(solver.objective_value)
         sinergie   = max(z_val, 0)
@@ -43,79 +44,80 @@ def solve_single_instance(instance_path, time_limit, constraint_mode, num_worker
         z_val      = sinergie = conflitti = 0
         status_str = solver.status_name(status)
 
+    # Saves the time needed to find the solution
     wall_time = solver.wall_time
 
-    # Print solution
+    # Prints solution
     print("\n" + "="*45)
-    print(" RISULTATI OTTIMIZZAZIONE".center(45))
+    print(" RESULTS ".center(45))
     print("="*45)
-    print(f" Stato Soluzione : {status_str}")
-    print(f" Tempo (s)       : {wall_time:.3f}")
-    print(f" Obiettivo (Z)   : {z_val}")
-    print(f" Sinergie        : {sinergie}")
-    print(f" Conflitti       : {conflitti}")
+    print(f" Solution State : {status_str}")
+    print(f" Time (s)       : {wall_time:.3f}")
+    print(f" Objective (Z)   : {z_val}")
+    print(f" Synergies        : {sinergie}")
+    print(f" Conflicts       : {conflitti}")
     print("="*45)
 
-    # Export plots
+    # Exports plots using the output module
     if export_plots and status in (cp.OPTIMAL, cp.FEASIBLE):
-        print("\nGenerazione del layout grafico in corso...")
+        print("\nGenerating plot...")
         try:
             save_solution_image(instance_path, solver, presence, start, size, HSI, H, K, DIM_STRIP)
-            print("Plot del layout salvato con successo.")
+            print("Plot saved successfully.")
         except Exception as e:
-            print(f"[ERRORE di Plotting]: {e}")
+            print(f"[ERROR. Plot saving failed.]: {e}")
 
 
 def main():
+    # Takes parameters from the CLI
     parser = argparse.ArgumentParser(
-        description="Tool per l'ottimizzazione del layout colturale su singola istanza."
+        description="Crop Planting Layout solver."
     )
-    
     # Instance file name
     parser.add_argument(
         "instance",
         type=str,
-        help="Percorso del file di istanza"
+        help="Instance path"
     )
-    
     # Constraint mode
     parser.add_argument(
         "--mode",
         type=str,
         default="hard",
         choices=["hard", "soft"],
-        help="Modalità vincoli di vicinanza: 'hard' o 'soft' (default: hard)"
+        help="Adjacency constraint: 'hard' or 'soft' (default: hard)"
     )
     parser.add_argument(
         "--allelopathy-threshold",
         type=int,
         default=-100,
-        help="Soglia al di sotto della quale due specie sono incompatibili (default: -100)"
+        help="Below this allelopathy threshold two species are considered incompatibles (default: -100)"
     )
-    
     # CP-SAT solver time limit
     parser.add_argument(
         "--time-limit",
         type=int,
         default=60,
-        help="Tempo limite di risoluzione in secondi (default: 60)"
+        help="Solver Time Limit (default: 60)"
     )
+    # Number of workers
     parser.add_argument(
         "--workers",
         type=int,
         default=4,
-        help="Numero di thread paralleli per CP-SAT (default: 4)"
+        help="Number of parallel threads used by the CP-SAT solver (default: 4)"
     )
     
     # Output e visualizzazione
     parser.add_argument(
         "--export-plots",
         action="store_true",
-        help="Esporta le soluzioni sotto forma di grafico (default: False)"
+        help="Exports found solution as a PNG image (default: False)"
     )
-    
+
     args = parser.parse_args()
 
+    # Calls the solve_single_instance function
     solve_single_instance(
         instance_path=args.instance,
         time_limit=args.time_limit,
