@@ -75,6 +75,6 @@ python solver.py
 
 The solver can output a spatial plot with the found solution, by setting the export_plots parameter to true in config.ini.
 
-## 📜 License
+## License
 
 Distributed under the MIT License. See `LICENSE` for more details.
