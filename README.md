@@ -26,17 +26,13 @@ The Crop Planting Layout Problem involves assigning agricultural crops to cluste
 ## Repository Structure
 
 ```text
-├── instances/            # Benchmark problem instance files
-├── plots/                # Output visual layouts
-├── results/              # Output CSV logs
-├── utils/                # Utility modules (instances data parsing, output functions)
-├── analyze_results.py    # Computational campaign analyzer
-├── config.ini            # Global solver configurations and execution parameters
-├── cplp_ortools.py       # Core OR-Tools CP-SAT formulation logic
-├── instances.txt         # List of instance names for experimental runs
-├── requirements.txt      # Project dependencies
-├── solver.py             # Computational campaign script
-└── README.md
+.
+├── utils/
+├── README.md
+├── analyze_benchmarks.py
+├── main.py
+├── requirements.txt
+└── run_benchmarks.py
 ```
 
 ---
