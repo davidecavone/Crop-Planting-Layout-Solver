@@ -1,4 +1,5 @@
 import argparse
+import sys
 import traceback
 from ortools.sat.python import cp_model as cp
 
@@ -8,22 +9,19 @@ from utils.output import *
 
 
 def solve_single_instance(instance_path, time_limit, constraint_mode, num_workers, allelopathy_threshold, export_plots):
-    """
-    Risolve una singola istanza del problema e stampa i risultati a schermo,
-    adatta per demo lato client o esecuzione stand-alone.
-    """
-    print(f"\nRisoluzione istanza : {instance_path}")
-    print(f"Parametri Solver  : TL={time_limit}s | Mode={constraint_mode} | Workers={num_workers} | Threshold={allelopathy_threshold}")
+
+    print(f"\nSolving instance : {instance_path}")
+    print(f"Solver parameters  : Time Limit={time_limit}s | Mode={constraint_mode} | Workers={num_workers} | Allelopathy Threshold={allelopathy_threshold}")
     
-    # --- 1. Parsing dell'istanza ---
+    # Calls the parse_dat_file function from the parsing module
     try:
         K, M, H, a, o, c_min, c_max, d, positive, negative, neutre, file_id = parse_dat_file(instance_path)
     except Exception as e:
-        print(f"\n[ERRORE di Parsing] Impossibile leggere {instance_path}: {e}")
+        print(f"\n[Parsing Error] {instance_path} cannot be read.")
         return
 
-    # --- 2. Risoluzione con CP-SAT ---
-    print("\nAvvio del solver CP-SAT...")
+    # Calls the CP-SAT solver and the build_and_solve function
+    print("\nStarting CP-SAT Solver...")
     try:
         solver, status, HSI, presence, start, end, size, DIM_STRIP, P = build_and_solve(
             K, M, H, a, o, c_min, c_max, d,
@@ -31,11 +29,11 @@ def solve_single_instance(instance_path, time_limit, constraint_mode, num_worker
             num_workers, time_limit
         )
     except Exception as e:
-        print(f"\n[ERRORE del Solver]: {e}")
+        print(f"\n[Critical Error]: ", file=sys.stderr)
         traceback.print_exc()
-        return
+        sys.exit(1)
 
-    # --- 3. Estrazione Metriche ---
+    # In case of optimal or feasible solution, save the found values
     if status in (cp.OPTIMAL, cp.FEASIBLE):
         z_val      = int(solver.objective_value)
         sinergie   = max(z_val, 0)
@@ -47,7 +45,7 @@ def solve_single_instance(instance_path, time_limit, constraint_mode, num_worker
 
     wall_time = solver.wall_time
 
-    # --- 4. Report lato Client / Stakeholder ---
+    # Print solution
     print("\n" + "="*45)
     print(" RISULTATI OTTIMIZZAZIONE".center(45))
     print("="*45)
@@ -58,7 +56,7 @@ def solve_single_instance(instance_path, time_limit, constraint_mode, num_worker
     print(f" Conflitti       : {conflitti}")
     print("="*45)
 
-    # --- 5. Export Grafico della Soluzione ---
+    # Export plots
     if export_plots and status in (cp.OPTIMAL, cp.FEASIBLE):
         print("\nGenerazione del layout grafico in corso...")
         try:
@@ -73,14 +71,14 @@ def main():
         description="Tool per l'ottimizzazione del layout colturale su singola istanza."
     )
     
-    # Argomento obbligatorio
+    # Instance file name
     parser.add_argument(
         "instance",
         type=str,
         help="Percorso del file di istanza"
     )
     
-    # Configurazione del modello e dei vincoli
+    # Constraint mode
     parser.add_argument(
         "--mode",
         type=str,
@@ -95,7 +93,7 @@ def main():
         help="Soglia al di sotto della quale due specie sono incompatibili (default: -100)"
     )
     
-    # Risorse e limiti del solver CP-SAT
+    # CP-SAT solver time limit
     parser.add_argument(
         "--time-limit",
         type=int,
