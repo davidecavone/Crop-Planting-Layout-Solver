@@ -1,6 +1,7 @@
 import pandas as pd
 import sys
 
+# Aggregate computational campaign CSV data in a table
 def analyze(csv_path):
     try:
         df = pd.read_csv(csv_path)
