@@ -66,14 +66,11 @@ pip install -r requirements.txt
 ## Usage
 
 ```bash
-python solver.py
+python main.py <instance> [-h] [--mode {hard,soft}] [--allelopathy-threshold INT]
+                          [--time-limit INT] [--workers INT] [--export-plots]
 ```
 
 ---
-
-## Visualizing Results
-
-The solver can output a spatial plot with the found solution, by setting the export_plots parameter to true in config.ini.
 
 ## License
 
