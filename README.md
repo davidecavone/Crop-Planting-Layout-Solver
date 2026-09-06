@@ -90,4 +90,4 @@ If you use this work or reference the underlying model and tools, please cite th
 ---
 ## License
 
-Distributed under the MIT License. See `LICENSE` for more details.
+Distributed under the MIT License. See [LICENSE](LICENSE) for more details.
