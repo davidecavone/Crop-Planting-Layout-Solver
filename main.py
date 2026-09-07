@@ -37,26 +37,17 @@ def solve_single_instance(instance_path, time_limit, constraint_mode, num_worker
     # In case of optimal or feasible solution, saves the found values
     if status in (cp.OPTIMAL, cp.FEASIBLE):
         z_val      = int(solver.objective_value)
-        sinergie   = max(z_val, 0)
-        conflitti  = max(-z_val, 0)
+        synergies   = max(z_val, 0)
+        conflicts  = max(-z_val, 0)
         status_str = solver.status_name(status)
     else:
-        z_val      = sinergie = conflitti = 0
+        z_val      = synergies = conflicts = 0
         status_str = solver.status_name(status)
 
     # Saves the time needed to find the first solution
     wall_time = solver.wall_time
 
     # Prints solve time and aggregated objective score
-    print("\n" + "="*45)
-    print(" RESULTS ".center(45))
-    print("="*45)
-    print(f" Solution State : {status_str}")
-    print(f" Time (s)       : {wall_time:.3f}")
-    print(f" Objective (Z)   : {z_val}")
-    print(f" Synergies        : {sinergie}")
-    print(f" Conflicts       : {conflitti}")
-    print("="*45)
 
     # Exports plots using the output module
     if export_plots and status in (cp.OPTIMAL, cp.FEASIBLE):
