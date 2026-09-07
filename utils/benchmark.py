@@ -1,3 +1,5 @@
+from ortools.sat.python import cp_model as cp
+
 def map_status(cp_status):
     if cp_status == cp.OPTIMAL:
         return 1
