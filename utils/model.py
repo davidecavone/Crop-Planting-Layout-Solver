@@ -1,6 +1,7 @@
 from ortools.sat.python import cp_model as cp
 import math
 
+# Utility functions for the model
 def get_cluster_distance(H, c_min):
     return [min(c_min[k] for k in range(H) if k != h) for h in range(H)]
 
