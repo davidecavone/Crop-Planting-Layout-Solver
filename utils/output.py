@@ -1,6 +1,7 @@
 from ortools.sat.python import cp_model as cp
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
+from pathlib import Path
 
 def map_status(status):
     """
@@ -58,5 +59,13 @@ def save_solution_image(instance, solver, presence, start, size, HSI, H, K, DIM_
     handles = [patches.Patch(color=colors[h], label=f'Specie {h+1}') for h in range(H)]
     ax.legend(handles=handles)
     plt.tight_layout()
-    plt.savefig(f"plots/output_{instance}.png", dpi=150, bbox_inches='tight')
+    
+    plots_dir = Path("plots")
+    plots_dir.mkdir(parents=True, exist_ok=True)
+
+    # Also strip .dat to avoid the double extension '.dat.png'
+    clean_instance_name = Path(instance).stem
+
+    output_path = plots_dir / f"output_{clean_instance_name}.png"
+    plt.savefig(output_path, dpi=150, bbox_inches='tight')
     plt.close()
