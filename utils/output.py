@@ -1,6 +1,19 @@
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 
+# Print solution to terminal
+def print_to_terminal(status_str, wall_time, z_val, synergies, conflicts):
+    print("\n" + "="*45)
+    print(" RESULTS ".center(45))
+    print("="*45)
+    print(f" Solution State : {status_str}")
+    print(f" Time (s)       : {wall_time:.3f}")
+    print(f" Objective (Z)   : {z_val}")
+    print(f" Synergies        : {synergies}")
+    print(f" Conflicts       : {conflicts}")
+    print("="*45)
+
+
 # Plots the solution found and saves it as a PNG image
 def save_solution_image(instance, solver, presence, start, size, HSI, H, K, DIM_STRIP):
     fig, ax = plt.subplots(figsize=(max(12, DIM_STRIP * 0.15), 6))
