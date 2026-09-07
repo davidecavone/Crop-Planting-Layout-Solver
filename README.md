@@ -86,7 +86,7 @@ pip install -r requirements.txt
 ```
 ---
 
-## Usage
+## Main script usage
 
 ```bash
 python main.py <instance> [-h] [--mode {hard,soft}] [--allelopathy-threshold INT]
@@ -102,6 +102,24 @@ where
 * `--export-plots`: Exports found solution as a PNG image (default: False)
 
 ---
+
+## Computational campaign usage
+
+In the project path, do
+
+```bash
+cd computational_campaign
+python run.py <instance> [-h] [--allelopathy-threshold INT] [--export-results] [--export-plots]
+```
+where
+
+* `instance`: Instance path
+* `--allelopathy-threshold`: Below this allelopathy threshold two species are considered incompatibles (default: -100)
+* `--export-results`: Exports solutions benchmarks in results folder as CSV file
+* `--export-plots`: Exports found solutions as a PNG image (default: False)
+Campaign time limits, pool size and configurations can be adjusted in the config.py file.
+---
+
 ## Screenshots
 
 ![Alt text description](assets/output_I_2_6_33_1_1.png)
