@@ -96,7 +96,7 @@ def main():
     parser.add_argument(
         "--workers",
         type=int,
-        default=4,
+        default=1,
         help="Number of parallel threads used by the CP-SAT solver (default: 4)"
     )
     
