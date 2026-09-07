@@ -111,7 +111,7 @@ def build_and_solve(K, M, H, a, o, c_min, c_max, d,
     solver   = cp.CpSolver()
     solver.parameters.num_workers          = num_workers
     solver.parameters.max_time_in_seconds  = time_limit
-    callback = FirstSolutionCallback()
-    status   = solver.solve(model, callback)
+    
+    status   = solver.solve(model)
 
     return solver, status, HSI, presence, start, end, size, DIM_STRIP, P
