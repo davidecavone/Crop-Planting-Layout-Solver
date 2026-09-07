@@ -102,6 +102,11 @@ where
 * `--export-plots`: Exports found solution as a PNG image (default: False)
 
 ---
+## Screenshots
+
+![Alt text description](assets/my-plot.png)
+
+---
 ## References
 
 If you use this work or reference the underlying model and tools, please cite the corresponding sources:
