@@ -1,8 +1,5 @@
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
-from datetime import datetime
-import csv
-import pandas as pd
 
 # Plots the solution found and saves it as a PNG image
 def save_solution_image(instance, solver, presence, start, size, HSI, H, K, DIM_STRIP):
