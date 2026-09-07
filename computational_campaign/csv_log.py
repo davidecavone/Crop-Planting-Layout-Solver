@@ -2,6 +2,8 @@ from datetime import datetime
 import csv
 import pandas as pd
 
+from csv_log import *
+
 # Creates a CSV file for the computational campaign
 def init_csv(base_dir):
     timestamp  = datetime.now().strftime('%d-%m-%Y_%H-%M-%S')
@@ -54,14 +56,14 @@ def finalize_csv(csv_file, csv_path):
     df = pd.read_csv(csv_path)
     df['maximal'] = df.groupby('istanza_pk')['z'].transform('max')
     df.to_csv(csv_path, index=False)
-    print(f"CSV finale salvato in: {csv_path}")
+    print(f"CSV file saved in: {csv_path}")
 
 # Aggregate computational campaign CSV data in a table
 def analyze(csv_path):
     try:
         df = pd.read_csv(csv_path)
     except FileNotFoundError:
-        print(f"Errore: file '{csv_path}' non trovato.")
+        print(f"Error: fil '{csv_path}' not found.")
         sys.exit(1)
 
     df['60s']  = df['time_first_feasible'] <= 60

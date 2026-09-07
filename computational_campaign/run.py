@@ -1,24 +1,23 @@
-from ortools.sat.python import cp_model as cp
-from utils.parsing import *
-from utils.model import *
-from utils.output import *
+import argparse
 from multiprocessing import Pool
+from pathlib import Path
+import sys
 import traceback
 
-# ---------------------------------------------------------------------------
+# Add project root (Crop-Planting-Layout-Solver) to sys.path
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
+# Sibling module (same folder: computational_campaign/)
+from csv_log import *
+
+# Project-level modules (from utils/)
+from ortools.sat.python import cp_model as cp
+from utils.model import *
+from utils.output import *
+from utils.parsing import *
+
 # Computational campaign configuration
-# ---------------------------------------------------------------------------
-
-CAMPAIGN_TIME_LIMITS = [60, 120, 240, 480]
-
-CONFIGURATIONS = [
-    ('hard', 1),
-    ('soft', 1),
-    ('hard', 2),
-    ('soft', 2),
-]
-
-POOL_SIZE = 8
+from config import CAMPAIGN_TIME_LIMITS, CONFIGURATIONS, POOL_SIZE
 
 # Solve the instance for every combination of constraint mode, number of workers, and time limit
 def run_task(args):
@@ -32,7 +31,7 @@ def run_task(args):
         K, M, H, a, o, c_min, c_max, d, positive, negative, neutre, file_id = parse_dat_file(instance)
         cluster = int(instance.split('_')[4])
     except Exception as e:
-        print(f"  [ERRORE parsing] {instance}: {e}")
+        print(f"  [ERROR parsing] {instance}: {e}")
         return results
 
     optimal_found  = False
@@ -40,20 +39,21 @@ def run_task(args):
 
     for time_limit in CAMPAIGN_TIME_LIMITS:
 
-        # --- Replica se ottimale già trovato ---
+        # If optimal solution is found, copy it for higher time limits
         if optimal_found and cached_result is not None:
             results.append({**cached_result, 'time_limit': time_limit, 'replicated': True})
             continue
 
-        # --- Risoluzione reale ---
+        # Solver logic
         try:
+            # Build the model
             solver, status, HSI, presence, start, end, size, DIM_STRIP, P = build_and_solve(
                 K, M, H, a, o, c_min, c_max, d,
                 constraint_mode, allelopathy_threshold,
                 num_workers, time_limit
             )
         except Exception as e:
-            print(f"  [ERRORE solver] {instance} | tl={time_limit}s | {constraint_mode} | w={num_workers}: {e}")
+            print(f"  [ERROR solver] {instance} | tl={time_limit}s | {constraint_mode} | w={num_workers}: {e}")
             traceback.print_exc()
             continue
 
@@ -68,7 +68,8 @@ def run_task(args):
 
         status_code = map_status(status)
         wall_time   = solver.wall_time
-
+        
+        # Debug print
         print(f"  {instance} | tl={time_limit}s | w={num_workers} | {constraint_mode} | "
               f"status={solver.status_name(status)} | time={wall_time:.3f}s")
 
@@ -95,43 +96,71 @@ def run_task(args):
         }
         results.append(result)
 
-        # Cache per i TL successivi
+        # Cache for higher time limits
         if status_code == 1:
             optimal_found = True
             cached_result = result.copy()
 
-        # Plot (ogni processo ha il suo matplotlib, nessun conflitto)
+        # Export plots
         if export_plots and status in (cp.OPTIMAL, cp.FEASIBLE):
             try:
                 save_solution_image(instance, solver, presence, start, size, HSI, H, K, DIM_STRIP)
             except Exception as e:
-                print(f"  [ERRORE plot] {instance}: {e}")
+                print(f"  [ERROR plot] {instance}: {e}")
 
     return results
 
-
-# ---------------------------------------------------------------------------
-# Main
-# ---------------------------------------------------------------------------
-
 def main():
-    base_dir = Path(__file__).parent
-    # Default values
-    allelopathy_threshold = 100
-    export_results = True
-    export_plots = False
+    base_dir = Path(__file__).resolve().parent
+    parser = argparse.ArgumentParser(description="Run computational campaign.")
     
-    instances = parse_instances_list(base_dir / "instances.txt")[:36]
+    # CLI arguments
+    # Instance list file path
+    parser.add_argument(
+        "instances_file",
+        type=Path,
+        help="Path to the .txt file containing the list of instance file names"
+    )
+    # Allelopathy threshold
+    parser.add_argument(
+        "--allelopathy-threshold",
+        type=int,
+        default=-100,
+        help="Below this allelopathy threshold two species are considered incompatibles (default: -100)"
+    )
+    # Export results (boolean flag defaulting to True)
+    parser.add_argument(
+        "--export-results",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="Export campaign results in a CSV file (default: True)"
+    )
+    # Export plots (boolean flag defaulting to False)
+    parser.add_argument(
+        "--export-plots",
+        action="store_true",
+        default=False,
+        help="Exports found solutions as PNG images (default: False)"
+    )
 
-    # Costruisce la lista di task: una per ogni (istanza x configurazione)
+    args = parser.parse_args()
+
+    instances = parse_instances_list(args.instances_file)
+    allelopathy_threshold = args.allelopathy_threshold
+    export_results = args.export_results
+    export_plots = args.export_plots
+
+    # Makes a task list containing every configuration possible for eeach instance
     tasks = [
         (istanza_pk, instance, constraint_mode, num_workers, allelopathy_threshold, export_plots)
+        
+        # pairs each element with a 1-based counter, example: (11, I_2_6_33_1_1.dat)
         for istanza_pk, instance in enumerate(instances, start=1)
         for constraint_mode, num_workers in CONFIGURATIONS
     ]
 
-    print(f"Istanze: {len(instances)} | Configurazioni: {len(CONFIGURATIONS)} | "
-          f"Task totali: {len(tasks)} | Pool size: {POOL_SIZE}")
+    print(f"Number of instances: {len(instances)} | Number of testing configurations types: {len(CONFIGURATIONS)} | "
+          f"Total tasks: {len(tasks)} | Pool size: {POOL_SIZE}")
 
     if export_results:
         csv_file, csv_writer, csv_path = init_csv(base_dir)
@@ -139,11 +168,10 @@ def main():
     esecuzione_pk     = 0
     task_completati   = 0
 
-    # imap_unordered: i risultati arrivano man mano che i worker finiscono
     with Pool(processes=POOL_SIZE) as pool:
         for task_results in pool.imap_unordered(run_task, tasks, chunksize=1):
             task_completati += 1
-            print(f"\n[Task {task_completati}/{len(tasks)} completato]")
+            print(f"\n[{task_completati}/{len(tasks)} tasks completed.]")
 
             for result in task_results:
                 esecuzione_pk += 1
