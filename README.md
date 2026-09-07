@@ -13,6 +13,34 @@ The Crop Planting Layout Problem involves assigning agricultural crops to cluste
 - **Objective:** Maximizing beneficial interactions between species.
 
 ---
+## Instance format
+The instances must be a .dat file like this one:
+
+```text
+K=6;
+M=198;
+H=3;
+a=[[0, 1, 0], 
+[1, 0, 0], 
+[0, 0, 0]]; 
+o = [ 2, 1, 1 ];
+c_min = [ 32, 33, 1 ];
+c_max = [ 33, 33, 33 ];
+d = [ 16, 165, 1 ];
+```
+
+where
+
+* `K`: Number of rows
+* `M`: Total number of cells
+* `H`: Number of species
+* `a`: Score matrix
+* `o`: Number of cells required for one unit of species
+* `c_min`: Minimum cluster length
+* `c_max`: Maximum cluster length
+* `d`: Demand of units of species
+
+---
 
 ## Tech Stack & Tools
 
@@ -55,22 +83,6 @@ source venv/bin/activate
 # .\venv\Scripts\activate
 
 pip install -r requirements.txt
-```
----
-## Instance format
-The instances must be a .dat file like this one:
-
-```text
-K=6;
-M=198;
-H=3;
-a=[[0, 1, 0], 
-[1, 0, 0], 
-[0, 0, 0]]; 
-o = [ 2, 1, 1 ];
-c_min = [ 32, 33, 1 ];
-c_max = [ 33, 33, 33 ];
-d = [ 16, 165, 1 ];
 ```
 ---
 
