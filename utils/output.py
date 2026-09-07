@@ -1,5 +1,25 @@
+from ortools.sat.python import cp_model as cp
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
+
+def map_status(status):
+    """
+    Maps OR-Tools CP-SAT status codes to standardized integer IDs:
+      1: OPTIMAL
+      2: FEASIBLE
+      3: INFEASIBLE
+      4: MODEL_INVALID
+      0: UNKNOWN / OTHER
+    """
+    if status == cp.OPTIMAL:
+        return 1
+    elif status == cp.FEASIBLE:
+        return 2
+    elif status == cp.INFEASIBLE:
+        return 3
+    elif status == cp.MODEL_INVALID:
+        return 4
+    return 0
 
 # Print solution to terminal
 def print_to_terminal(status_str, wall_time, z_val, synergies, conflicts):
