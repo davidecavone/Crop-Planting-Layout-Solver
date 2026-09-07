@@ -104,7 +104,7 @@ where
 ---
 ## Screenshots
 
-![Alt text description](assets/my-plot.png)
+![Alt text description](assets/output_I_2_6_33_1_1.png)
 
 ---
 ## References
