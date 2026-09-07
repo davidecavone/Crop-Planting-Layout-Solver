@@ -92,6 +92,14 @@ pip install -r requirements.txt
 python main.py <instance> [-h] [--mode {hard,soft}] [--allelopathy-threshold INT]
                           [--time-limit INT] [--workers INT] [--export-plots]
 ```
+where
+
+* `instance`: Instance path
+* `--mode`: Adjacency constraint: 'hard' or 'soft' (default: hard)
+* `--allelopathy-threshold`: Below this allelopathy threshold two species are considered incompatibles (default: -100)
+* `--time-limit`: Solver Time Limit (default: 60)
+* `--workers`: Number of parallel threads used by the CP-SAT solver (default: 4)
+* `--export-plots`: Exports found solution as a PNG image (default: False)
 
 ---
 ## References
