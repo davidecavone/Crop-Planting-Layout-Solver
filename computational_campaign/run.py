@@ -118,8 +118,8 @@ def main():
     base_dir = Path(__file__).parent
     # Default values
     allelopathy_threshold = 100
-    export_results = true
-    export_plots = false
+    export_results = True
+    export_plots = False
     
     instances = parse_instances_list(base_dir / "instances.txt")[:36]
 
