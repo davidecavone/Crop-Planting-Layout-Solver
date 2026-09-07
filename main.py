@@ -48,7 +48,8 @@ def solve_single_instance(instance_path, time_limit, constraint_mode, num_worker
     wall_time = solver.wall_time
 
     # Prints solve time and aggregated objective score
-
+    print_to_terminal(status_str, wall_time, z_val, synergies, conflicts)
+    
     # Exports plots using the output module
     if export_plots and status in (cp.OPTIMAL, cp.FEASIBLE):
         print("\nGenerating plot...")
