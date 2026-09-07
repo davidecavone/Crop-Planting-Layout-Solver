@@ -24,7 +24,7 @@ def save_solution_image(instance, solver, presence, start, size, HSI, H, K, DIM_
     ax.set_xticks(range(DIM_STRIP + 1), minor=True)
     ax.set_yticks(range(K + 1), minor=True)
     ax.grid(which='minor', color='black', linewidth=0.5)
-    ax.set_title(f'Funzione obiettivo: {solver.objective_value}')
+    ax.set_title(f'Total score: {solver.objective_value}')
     handles = [patches.Patch(color=colors[h], label=f'Specie {h+1}') for h in range(H)]
     ax.legend(handles=handles)
     plt.tight_layout()
