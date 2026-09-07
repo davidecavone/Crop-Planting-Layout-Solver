@@ -56,7 +56,22 @@ source venv/bin/activate
 
 pip install -r requirements.txt
 ```
+---
+## Instance format
+The instances must be a .dat file like this one:
 
+```text
+K=6;
+M=198;
+H=3;
+a=[[0, 1, 0], 
+[1, 0, 0], 
+[0, 0, 0]]; 
+o = [ 2, 1, 1 ];
+c_min = [ 32, 33, 1 ];
+c_max = [ 33, 33, 33 ];
+d = [ 16, 165, 1 ];
+```
 ---
 
 ## Usage
